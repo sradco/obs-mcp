@@ -64,6 +64,14 @@ func (i *Inspector) ServerResourcesForGroupVersion(ctx context.Context, _ string
 	})
 }
 
+// ServerResourcesForGroup returns an empty APIResourceList for every group,
+// matching ServerResourcesForGroupVersion's empty discovery results.
+func (i *Inspector) ServerResourcesForGroup(ctx context.Context, _ string) api.Results[[]*metav1.APIResourceList] {
+	return api.NewResults(ctx, i, func(context.Context, string) ([]*metav1.APIResourceList, error) {
+		return []*metav1.APIResourceList{{}}, nil
+	})
+}
+
 // IsMultiTarget reports whether the provider manages multiple targets.
 func (i *Inspector) IsMultiTarget() bool { return false }
 
