@@ -39,7 +39,7 @@ the test cluster.
 
 ## Authentication Modes
 
-The `--auth-mode` flag controls how obs-mcp obtains bearer tokens for **Prometheus/Thanos**, **Alertmanager**, and (when enabled) **Loki** and **Tempo** endpoints:
+The `--auth-mode` flag controls how obs-mcp obtains bearer tokens for **Prometheus/Thanos**, **Alertmanager**, and (when enabled) **Loki**, **Tempo**, and **monitoring-plugin alert management API** endpoints:
 
 | Mode             | Token Source                                                                 | Use Case                                                  |
 | ---------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------- |
@@ -59,6 +59,8 @@ The `--auth-mode` flag controls how obs-mcp obtains bearer tokens for **Promethe
 - If no header is provided, connects without authentication
 - Requires explicit `PROMETHEUS_URL` (no auto-discovery)
 - If `observability/logs` toolset is enabled, either set `LOKI_URL`/`--loki-url` or use LokiStack discovery parameters (`lokiNamespace`, `lokiName`)
+- If `observability/alert-management` toolset is enabled, set `ALERT_MGMT_API_URL`/`--alert-mgmt-api-url` (required in `header` mode; kubeconfig mode falls back to `https://localhost:9443`). Use HTTPS so the caller's token is forwarded; `http://` backends never receive bearer tokens. Kind e2e does not install monitoring-plugin; alert-management calls skip when the API is missing. Tool workflow and GitOps behavior: [ALERT_MANAGEMENT.md](ALERT_MANAGEMENT.md).
+- OpenShift sample RBAC (`obs-mcp-monitoring-reader`) is metrics/Alertmanager **read** plus Prometheus query. Silence writes and `AlertRelabelConfig` (platform drop/restore) are not in that role; bind extra Roles to the caller (e2e does this for the obs-mcp service account).
 - Best for: **Pass-through auth** scenarios or **Prometheus without authentication** (e.g., port-forwarded, local kube-prometheus)
 
 ## Deploying on a Cluster
@@ -96,7 +98,7 @@ comma-separated list via `--stacks` (default: `prometheus,tempo,loki`):
 
 | Stack        | What it installs                                                       | Toolset enabled |
 | ------------ | ---------------------------------------------------------------------- | --------------- |
-| `prometheus` | kube-prometheus (k8s) or uses the built-in OpenShift monitoring stack  | `observability/metrics` |
+| `prometheus` | kube-prometheus (k8s) or uses the built-in OpenShift monitoring stack  | `observability/metrics` and `observability/alert-management` |
 | `tempo`      | Tempo + OpenTelemetry operators and a sample tracing app               | `observability/traces`  |
 | `loki`       | Loki Operator test stack                                               | `observability/logs`    |
 
@@ -104,6 +106,8 @@ The enabled stacks determine which `manifests/` subtrees are applied and which `
 value is passed to the obs-mcp deployment — no manual editing of manifests is needed.
 When deploying via `hack/e2e/setup.sh`, the `observability/otelcol` toolset is always included (it has no
 external backend dependency); stack selection adds `observability/metrics`, `observability/traces`, and/or `observability/logs` on top.
+The prometheus stack also enables `observability/alert-management`. Kind does not deploy monitoring-plugin;
+`list_alert_rules` and `list_alerts` e2e tests skip when that API is unreachable or returns 404 (stock monitoring-plugin). OpenShift uses the in-cluster monitoring-plugin service.
 
 **Phases** express what work to perform. The two top-level aliases cover the common cases:
 

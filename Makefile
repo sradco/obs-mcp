@@ -266,7 +266,7 @@ RUNS ?= 1
 EVAL_CONFIG ?= eval.yaml
 
 .PHONY: run-mcpchecker-eval
-run-mcpchecker-eval: $(MCPCHECKER) ## Run mcpchecker eval (TASK=name, CATEGORY=..., EVAL_CONFIG=eval.yaml, RUNS=3)
+run-mcpchecker-eval: $(MCPCHECKER) ## Run mcpchecker eval (TASK=name, CATEGORY=..., EVAL_CONFIG=eval.yaml or eval-writes.yaml, RUNS=3)
 	@yq -i '.mcpServers.obs.headers.Authorization = "Bearer '"$$(kubectl -n obs-mcp create token obs-mcp)"'"' $(MCPCHECKER_EVAL_DIR)/mcp-config.yaml
 
 ifdef TASK

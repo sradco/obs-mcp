@@ -70,6 +70,10 @@ jobs:
                 echo "$TOOLS" | grep -q 'tempo_' || (echo "ERROR: no tempo_ tools found"; exit 1)
                 echo "$TOOLS" | grep -q 'loki_' || (echo "ERROR: no loki_ tools found"; exit 1)
                 echo "$TOOLS" | grep -q 'otelcol_' || (echo "ERROR: no otelcol_ tools found"; exit 1)
+                echo "$TOOLS" | grep -q 'create_silence' || (echo "ERROR: no create_silence tool found"; exit 1)
+                echo "$TOOLS" | grep -q 'get_silences' || (echo "ERROR: no get_silences tool found"; exit 1)
+                echo "$TOOLS" | grep -q 'list_alert_rules' || (echo "ERROR: no list_alert_rules tool found"; exit 1)
+                echo "$TOOLS" | grep -q 'list_alerts' || (echo "ERROR: no list_alerts tool found"; exit 1)
 
             - name: Collect diagnostics on failure
               if: ${{ failure() }}

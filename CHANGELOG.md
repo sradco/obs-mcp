@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Alert management toolset (`observability/alert-management`) with MCP tools for listing alerts and listing, creating, updating, deleting, and previewing OpenShift alert rules via the monitoring-plugin management API ([#171](https://github.com/rhobs/obs-mcp/pull/171))
+- Alertmanager silence write tools: `create_silence`, `update_silence`, and `delete_silence` (alongside existing `get_silences`)
+- Sample ConfigMaps enable `observability/alert-management`
+- E2E tests for silence writes, `list_alerts`, `list_alert_rules`, user-defined alert-rule create/update/delete, and platform drop/restore via `alerting_rule_enabled` (skipped when the management API is unreachable). Kind does not install monitoring-plugin.
+- mcpchecker evals for listing rules, listing alerts, and previewing (default `eval.yaml`). Mutating CRUD, platform drop/restore, and silence create/expire live in `evals/mcpchecker/eval-writes.yaml`
+
+### Changed
+
+- `update_alert_rule` is annotated as destructive (`DestructiveHint`) because it can drop a platform alert
+
+### Fixed
+
+- Skip `list_alert_rules` e2e only for transport failures and the stock-plugin `404 page not found` body, not every HTTP 404, generic `page not found`, or TLS error
+- Dedicated `namespace` on platform create/preview overrides `labels.namespace`
+- `update_silence` parameter docs no longer claim create-time defaults for omitted `createdBy`, `startsAt`, or `duration`
+- Refuse HTTPS-to-HTTP redirects so bearer tokens stay on TLS
+- Wait for e2e Deployments without `kubectl wait --for=create`, which older `oc` rejects
+
 ## [v0.7.1] - 2026-07-30
 
 ### Fixed
